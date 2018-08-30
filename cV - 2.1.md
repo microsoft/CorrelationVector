@@ -26,18 +26,21 @@ The robust sort and causality tracking requirements are based on the need to sup
 Represented by the following simply grammar ABNF specification
 
 1. vector = base delim suffix
-2. base = 22*22char
+2. base = 21char lastChar
 3. char = %x30-39 / %x41-5A / %61-7A / %x2F / %2B ; base64 characters
-4. suffix = elem / elem bang / elem delim suffix
-5. elem = %x30-39
-6. delim = %x2E ; '.'
-7. bang = %x21 ; '!'
+4. lastChar = "A" / "Q" / "g" / "w" ; base64 characters with four least significant bits of zero
+5. suffix = elem / elem bang / elem delim suffix
+6. elem = %x30-39
+7. delim = %x2E ; '.'
+8. bang = %x21 ; '!'
 
-Less formally, the cV has the form **_{Base}.{Vector}_** where **_{Base}_** has 22 base64 encoded characters and **_{Vector}_** is a "."-_delimited_ string of elements where each element is a 4 byte unsigned integer encoded in decimal, and is optionally terminated by the '!' character.
+Less formally, the cV has the form **_{Base}.{Vector}_** where **_{Base}_** is a 128-bit base64 encoded value (with output padding "==" removed) and **_{Vector}_** is a "."-_delimited_ string of elements where each element is a 4 byte unsigned integer encoded in decimal, and is optionally terminated by the '!' character.
 
-**Maximum length**: 128 bytes
+**Maximum length**: 128 bytes (assuming a UTF-8 encoding)
 
-**Notes**: The following characters are reserved for the specification { ‘.’, ‘!’ }
+**Note**: The following characters are reserved for the specification { ‘.’, ‘!’ }
+
+**Note**: The encoded **_{Base}_** consists of 22 base64 characters and, if left unrestriced, technically allows for 132-bit values. In order to support interop with tracing standards that use UUID's, the **_{Base}_** value is restricted to 128-bits assuring reliable conversion to/from the UUID format. This is the reason the last element of the **_{Base}_** is restricted to a subset of allowable base64 characters.
 
 ### Examples
 
@@ -51,7 +54,7 @@ The Operators defined on the cV are designed to support tracing while fulfilling
 
 To help define the vector operators are the following definitions and notations:
 
-- X is a valid base, i.e. 22 randomly generated base64 encoded characters
+- X is a valid base, i.e. 128-bit base64 encoded value with output padding "==" removed
 - V is a valid vector
 - N is a valid 4-byte unsigned integer encoded in decimal
 
