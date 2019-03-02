@@ -3,6 +3,7 @@
 **Correlation Vector** (a.k.a. **cV**) is a tracing standard that evolved internally at Microsoft, based on a light weight vector clock.
 
 This document covers:
+
 - the design goals of the cV
 - the format used on the wire when transmitting the vector across components involved in a trace
 - the protocols used for managing the vector and the specific operators involved
@@ -30,7 +31,7 @@ Represented by the following simply grammar ABNF specification
 3. char = %x30-39 / %x41-5A / %61-7A / %x2F / %2B ; base64 characters
 4. lastChar = "A" / "Q" / "g" / "w" ; base64 characters with four least significant bits of zero
 5. suffix = elem / elem bang / elem delim suffix
-6. elem = %x30-39
+6. elem = 1*10(%x30-39) ; decimal 4 byte unsigned counter
 7. delim = %x2E ; '.'
 8. bang = %x21 ; '!'
 
@@ -82,7 +83,7 @@ If an increment is not possible, the workaround is to have the component that re
 
 ### Extend
 
-The Extend operator is to be used once on an incoming control flow, to extend the vector to create a vector element for the receiving span, such as on an incoming HTTP/RPC call. 
+The Extend operator is to be used once on an incoming control flow, to extend the vector to create a vector element for the receiving span, such as on an incoming HTTP/RPC call.
 
 **Definition**: V => V.0
 
@@ -109,15 +110,16 @@ The Spin operator mitigates this, by inserting an element with entropy so that r
 
 **Definition**: V => V.A.B.0
 
-- A is a 4-byte unsigned integer derived from UTC time as follows:    
-    -   If x is the UTC time in Ticks, 
-        -   Drop the least significant 16 bits of x to create a coarse tick that increments approximately every 6.5 milliseconds
-        -   Select least significant 32 bits from the output of the previous step that yields a 32-bit coarse tick counter where each tick is approximately 6.5 milliseconds
+- A is a 4-byte unsigned integer derived from UTC time as follows:
+  - If x is the UTC time in Ticks, 
+    - Drop the least significant 16 bits of x to create a coarse tick that increments approximately every 6.5 milliseconds
+    - Select least significant 32 bits from the output of the previous step that yields a 32-bit coarse tick counter where each tick is approximately 6.5 milliseconds
 
     A therefore reflects a coarse tick counter that increments approximately every 6.5 milliseconds and overflows once in a little over 328 days.
 - B is randomly generated 4-byte unsigned integer. 32 bits of entropy yields a probability of collision of 1.15% for 10,000 trials. 
 
-### Spin Examples:
+### Spin Examples
+
 1. PmvzQKgYek6Sdk/T5sWaqw.1 => PmvzQKgYek6Sdk/T5sWaqw.1.3226329855.4111101367.0
 2. e8iECJiOvUGPvOVtchxG9g.1.23 => e8iECJiOvUGPvOVtchxG9g.1.23.3226332926.1671828776.0
 
