@@ -17,6 +17,10 @@ The standard is widely used internally at Microsoft for first party applications
 - Design Constraints and Scenarios for the Correlation Vector: [Link](Scenarios.md)
 - Protocol Specification:
   - [v2.1](cV%20-%202.1.md)
+  - [v3.0](cV%20-%203.0.md) [In Review]
+    - Support interop with W3C Distributed Tracing [Link](https://github.com/w3c/distributed-tracing)
+    - Support for vector reset semantics to support traces of arbitrary depth
+    - Support for versioning
 
 ## Reference Implementations
 
@@ -28,10 +32,7 @@ The standard is widely used internally at Microsoft for first party applications
 
 ## Future Roadmap
 
-- v3.0
-  - Support interop with W3C Distributed Tracing [Link](https://github.com/w3c/distributed-tracing)
-  - Support for vector reset semantics to support traces of arbitrary depth
-  - Support for versioning
+TBD
 
 # Contributing
 
