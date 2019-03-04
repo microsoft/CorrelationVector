@@ -42,6 +42,8 @@ Represented by the following simply grammar ABNF specification
 
 **Note**: The encoded **_{Base}_** consists of 22 base64 characters and, if left unrestriced, technically allows for 132-bit values. In order to support interop with tracing standards that use UUID's, the **_{Base}_** value is restricted to 128-bits assuring reliable conversion to/from the UUID format. This is the reason the last element of the **_{Base}_** is restricted to a subset of allowable base64 characters.
 
+**Note**: Base64 is case sensitive. So in the cV base, 'a' is distinct from 'A'. Counters and Ids are encoded in hexadecimal where there is no such distinction. However, this indifference does not allow us to apply a lexical sort. So by convention and for a more accessible sort, we restrict the use of only **upper case** characters for the hexadecimal encoding when used for ids or counters.
+
 ### Examples
 
 1. PmvzQKgYek6Sdk/T5sWaqwA.0 // Base: PmvzQKgYek6Sdk/T5sWaqwA
@@ -165,11 +167,102 @@ Note that the properties of M as defined above allows for sorting events across 
 
 ## Key differences with cV 2.1
 
+Summarizing the key differences from v2.1:
+
+1. The base is appended with a single base64 character for version and reserved for future use. For 3.0, this is simply 'A' (base64 0).
+2. The vector element counters are encoded in Hex unlike the decimal encoding in v2.1. They continue to be 4 byte unsigned counters.
+3. Support for **optional** prefix sections on each stage, where each section starts with a reserved character and followed by an 8 byte identifier that is hex encoded (16 hex characters). This is done for Spin (prefixed by '_'), Reset (prefixed by '#') and W3C interop (prefixed by '-'). The W3C interop is described in a section below.
+4. With the Reset operator, the cV 3.0 format can support causality chains of indefnite depth. It is automatically invoked when other operations can exceed the maximum length. This arrangement means that the updated format does not rely on the '!' character in v2.1 to indicate further immutability. 
 
 ## Interop with cV 2.1
 
+The typical use case is when a system using cV v3.0 receives a call from a component that uses v2.1. 
+
+For the incoming v2.1 cV of the form X.V, where:
+
+- X is a compliant 22 base64 encoded base
+- V is the '.' delimited vector
+
+The equivalent v3.0 cV has the form: XA.V
+
+**Note**: While it is possible to convert a cV 3.0 to cV 2.1, it is **not** recommeded for a system using cV 3.0 to propagate to a system with cV 2.1. This is primarily on account of the more compact encoding on the v3.0 format which can generate equivalent cV 2.1 values that exceed maximum length. 
+
+### cV 2.1 to cV 3.0 conversion examples
+
+1. PmvzQKgYek6Sdk/T5sWaqw.0 => PmvzQKgYek6Sdk/T5sWaqwA.0
+2. e8iECJiOvUGPvOVtchxG9g.1.23 => e8iECJiOvUGPvOVtchxG9gA.1.23
+
+### cV 2.1 with trailing '!'
+
+The presence of the trailing '!' character indicates that the incoming vector is immutable as per the 2.1 specification. The recommended approach when dealing with such a cV in the 2.1 specification would be to create a new cV (with a new base using the Seed operator) and emit the association between the new and old cVs for trace reconstruction. 
+
+To convert such a v2.1 cV to v3.0, invoke the Reset operator.
+
+### Immutable cV 2.1 to cV 3.0 conversion example
+
+CgOLQOn9Gkmd4pM720ciZA.1.15.3226329855.4111101367.10.23.8.3226332926.1671828776.2345.12.3.243.544.3226336576.3422508575.23.1.34! =>
+CgOLQOn9Gkmd4pM720ciZAA#B6B3AB078D8000FA.0 
+- Recorded mapping: .1.15.3226329855.4111101367.10.23.8.3226332926.1671828776.2345.12.3.243.544.3226336576.3422508575.23.1.34! <=> B6B3AB078D8000FA
+
 ## Interop with W3C
+
+The primary W3C header that communicates the position of the incoming request in a trace is **traceparent**, which has the following format:
+
+version-format "-" **trace-id** "-" **parent-id** "-" trace-flags
+
+For the purposes of interop, we are primarily concerned with mapping **trace_id** and **parent-id** to their respective analogs in the cV format.
+
+Semantically,
+
+- **trace_id** maps to the cV base. They have identical entropy (atleast in the current versions).
+- **parent-id** maps to the incoming vector
 
 ### TraceParent to cV 3.0
 
+The typical use case is when a cV instrumented system receives an incoming call with traceparent header. 
+
+Generating a cV from an incoming traceparent value, has the following contruction steps: 
+- Encode the trace_id into base64
+- Append with the cV 3.0 version 'A'
+- Append the '-' character denoting the W3C interop
+- Convert the parent_id to upper case, and append it.
+- Append a new vector counter initialized to zero, with the '.' delimiter 
+
+The generated cV will have the following form: [*encode_base64(trace_id)*]A#[*uppercase(parent_id)*].0
+
+### W3C to cV 3.0 conversion example
+
+traceparent: 00-0af7651916cd43dd8448eb211c80319c-b9c7c989f97918e1-01
+=>
+cV 3.0: CvdlGRbNQ92ESOshHIAxnAA-B9C7C989F97918E1.0
+
 ### cV 3.0 to TraceParent
+
+The typical use case is when a cV instrumented system is making a call out to component that only understands the W3C headers.
+
+The cV encodes more information in the vector than that encoded in the parent_Id in traceparent. For this reason, when converting to cV 3.0, we generate a new span Id and associcate this with the span.
+
+Generating a traceparent from an existing cV 3.0 value, has the following contruction steps: 
+
+- Start with a prefix for the appropriate version format. This is currently "00-".
+- Encode the cV base (without the version character) into lower case hexadecimal.
+- Append a "-" character.
+- Generate a new span Id (random generation, 8 byte, lower case hexadecimal encoded) 
+  - Emit the association between the vector segement and the newly created span Id for trace reconstruction.
+- Append the span Id.
+- Append a "-" character
+- Append suitable trace-flags as defined in the W3C specification. Default would be "00".
+
+The generated traceparent will have the following form: 00-[*lowercase(encode_hex(cVBase))*]-[*lowercase(random_span_id)*]-[*trace-flags*]
+
+Note that the cV should have been incremented prior to the traceparent generation for outgoing spans.
+
+### cV 3.0 to W3C conversion example
+
+cV 3.0: PmvzQKgYek6Sdk/T5sWaqwA.1.F.A.23_B6A5E62FC38E9974.2
+=>
+traceparent: 00-3e6bf340a8187a4e92764fd3e6C59aab-10f076ab0ba9d1c9-00
+- Recorded mapping: .1.F.A.23_B6A5E62FC38E9974.2 <=> 10f076ab0ba9d1c9
+
+
+
