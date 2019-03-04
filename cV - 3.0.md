@@ -176,7 +176,7 @@ Summarizing the key differences from v2.1:
 
 ## Interop with cV 2.1
 
-The typical use case is when a system using cV v3.0 receives a call from a component that uses v2.1. 
+The typical use case is when a system using cV v3.0 receives a call from a component that uses v2.1.
 
 For the incoming v2.1 cV of the form X.V, where:
 
@@ -194,19 +194,20 @@ The equivalent v3.0 cV has the form: XA.V
 
 ### cV 2.1 with trailing '!'
 
-The presence of the trailing '!' character indicates that the incoming vector is immutable as per the 2.1 specification. The recommended approach when dealing with such a cV in the 2.1 specification would be to create a new cV (with a new base using the Seed operator) and emit the association between the new and old cVs for trace reconstruction. 
+The presence of the trailing '!' character indicates that the incoming vector is immutable as per the 2.1 specification. The recommended approach when dealing with such a cV in the 2.1 specification would be to create a new cV (with a new base using the Seed operator) and emit the association between the new and old cVs for trace reconstruction.
 
 To convert such a v2.1 cV to v3.0, invoke the Reset operator.
 
 ### Immutable cV 2.1 to cV 3.0 conversion example
 
 CgOLQOn9Gkmd4pM720ciZA.1.15.3226329855.4111101367.10.23.8.3226332926.1671828776.2345.12.3.243.544.3226336576.3422508575.23.1.34! =>
-CgOLQOn9Gkmd4pM720ciZAA#B6B3AB078D8000FA.0 
+CgOLQOn9Gkmd4pM720ciZAA#B6B3AB078D8000FA.0
+
 - Recorded mapping: .1.15.3226329855.4111101367.10.23.8.3226332926.1671828776.2345.12.3.243.544.3226336576.3422508575.23.1.34! <=> B6B3AB078D8000FA
 
 ## Interop with W3C
 
-The primary W3C header that communicates the position of the incoming request in a trace is **traceparent**, which has the following format:
+The primary [W3C](https://github.com/w3c/distributed-tracing) header that communicates the position of the incoming request in a trace is **traceparent**, which has the following format:
 
 version-format "-" **trace-id** "-" **parent-id** "-" trace-flags
 
@@ -222,6 +223,7 @@ Semantically,
 The typical use case is when a cV instrumented system receives an incoming call with traceparent header. 
 
 Generating a cV from an incoming traceparent value, has the following contruction steps: 
+
 - Encode the trace_id into base64
 - Append with the cV 3.0 version 'A'
 - Append the '-' character denoting the W3C interop
@@ -262,7 +264,5 @@ Note that the cV should have been incremented prior to the traceparent generatio
 cV 3.0: PmvzQKgYek6Sdk/T5sWaqwA.1.F.A.23_B6A5E62FC38E9974.2
 =>
 traceparent: 00-3e6bf340a8187a4e92764fd3e6C59aab-10f076ab0ba9d1c9-00
+
 - Recorded mapping: .1.F.A.23_B6A5E62FC38E9974.2 <=> 10f076ab0ba9d1c9
-
-
-
