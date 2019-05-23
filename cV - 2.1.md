@@ -41,7 +41,7 @@ Less formally, the cV has the form **_{Base}.{Vector}_** where **_{Base}_** is a
 
 **Note**: The following characters are reserved for the specification { ‘.’, ‘!’ }
 
-**Note**: The encoded **_{Base}_** consists of 22 base64 characters and, if left unrestriced, technically allows for 132-bit values. In order to support interop with tracing standards that use UUID's, the **_{Base}_** value is restricted to 128-bits assuring reliable conversion to/from the UUID format. This is the reason the last element of the **_{Base}_** is restricted to a subset of allowable base64 characters.
+**Note**: The encoded **_{Base}_** consists of 22 base64 characters and, if left unrestricted, technically allows for 132-bit values. In order to support interoperability with tracing standards that use UUIDs, the **_{Base}_** value is restricted to 128-bits assuring reliable conversion to/from the UUID format. This is the reason the last element of the **_{Base}_** is restricted to a subset of allowable base64 characters.
 
 ### Examples
 
@@ -127,8 +127,8 @@ The Spin operator mitigates this, by inserting an element with entropy so that r
 
 All operator implementations will include a check if the output exceeds 127 bytes in length. If it does, all operators will return the input vector appended with a '!' character. 
 
-The presence of the trailing '!' character indicates that a previous attempt to mutate the vector failed and the vector should therefore be considered immutable. So any operator that recieves an input vector with a trailing '!' character simply returns the same value. 
+The presence of the trailing '!' character indicates that a previous attempt to mutate the vector failed and the vector should therefore be considered immutable. So any operator that receives an input vector with a trailing '!' character simply returns the same value. 
 
-**Note**: The recommeded approach when encountering terminated vectors would be to seed a new correlation vector and associate the terminated vector with the new one using additional telemetry metadata.
+**Note**: The recommended approach when encountering terminated vectors would be to seed a new correlation vector and associate the terminated vector with the new one using additional telemetry metadata.
 
 

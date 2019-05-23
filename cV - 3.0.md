@@ -12,7 +12,7 @@ This document covers:
 
 Here are the key **additional** design goals:
 
-1. Support interop with W3C Distributed Tracing [Link](https://github.com/w3c/distributed-tracing)
+1. Support interoperability with W3C Distributed Tracing [Link](https://github.com/w3c/distributed-tracing)
 2. Support for vector reset semantics to support traces of arbitrary depth
 3. Support for versioning
 
@@ -40,18 +40,18 @@ Represented by the following simply grammar ABNF specification
 
 **Note**: The following characters are reserved for the specification { ‘.’, ‘-’, ‘_’, ‘#’, ‘!’ }
 
-**Note**: The encoded **_{Base}_** consists of 22 base64 characters and, if left unrestriced, technically allows for 132-bit values. In order to support interop with tracing standards that use UUID's, the **_{Base}_** value is restricted to 128-bits assuring reliable conversion to/from the UUID format. This is the reason the last element of the **_{Base}_** is restricted to a subset of allowable base64 characters.
+**Note**: The encoded **_{Base}_** consists of 22 base64 characters and, if left unrestricted, technically allows for 132-bit values. In order to support interoperability with tracing standards that use UUIDs, the **_{Base}_** value is restricted to 128-bits assuring reliable conversion to/from the UUID format. This is the reason the last element of the **_{Base}_** is restricted to a subset of allowable base64 characters.
 
-**Note**: Base64 is case sensitive. Since the cV base is base64 encoded, 'a' is distinct from 'A' in the base. Counters and Ids are encoded in hexadecimal where there is no such distinction. However, this indifference does not allow us to apply a lexical sort. So by convention and for a more accessible sort, the hexadecimal encoding is restricted to only **upper case** characters, when used for ids or counters.
+**Note**: Base64 is case sensitive. Since the cV base is base64 encoded, 'a' is distinct from 'A' in the base. Counters and IDs are encoded in hexadecimal where there is no such distinction. However, this indifference does not allow us to apply a lexical sort. So by convention and for a more accessible sort, the hexadecimal encoding is restricted to only **upper case** characters, when used for IDs or counters.
 
 ### Examples
 
 1. A.PmvzQKgYek6Sdk/T5sWaqw.0 // Base: PmvzQKgYek6Sdk/T5sWaqw; Version: A
 2. A.PmvzQKgYek6Sdk/T5sWaqw.B
-3. A.e8iECJiOvUGPvOVtchxG9g1.F.A.23 // All elements in the vector are logical ticks that resulted from an Increment operation
-4. A.e8iECJiOvUGPvOVtchxG9g-304773F68A307E98.1.F.A.234 // 304773F68A307E98 is a Span Id from the incoming W3C TraceParent header
+3. A.e8iECJiOvUGPvOVtchxG9g.F.A.23 // All elements in the vector are logical ticks that resulted from an Increment operation
+4. A.e8iECJiOvUGPvOVtchxG9g-304773F68A307E98.1.F.A.234 // 304773F68A307E98 is a Span ID from the incoming W3C TraceParent header
 5. A.e8iECJiOvUGPvOVtchxG9g.1.F.A.23_93816B91E430A7BB.1 // 93816B91E430A7BB was generated during a Spin operation
-6. A.e8iECJiOvUGPvOVtchxG9g1#B6A5FFD77977E2AE.0 // B6A5FFD77977E2AE was generated during a Reset operation
+6. A.e8iECJiOvUGPvOVtchxG9g#B6A5FFD77977E2AE.0 // B6A5FFD77977E2AE was generated during a Reset operation
 
 ## Operators
 
@@ -171,15 +171,15 @@ Summarizing the key differences from v2.1:
 
 1. The base is preceded with a single base64 character for version and reserved for future use. For 3.0, this is simply 'A' (base64 0).
 2. The vector element counters are encoded in Hex unlike the decimal encoding in v2.1. They continue to be 4 byte unsigned counters.
-3. Support for two **optional** vector prefix segements that use a reserved character followed by an 8 byte hex encoded identifier to support
+3. Support for two **optional** vector prefix segments that use a reserved character followed by an 8 byte hex encoded identifier to support
 
    - Reset (prefixed by '#')
-   - W3C interop (prefixed by '-')
+   - W3C interoperability (prefixed by '-')
 
 4. Support for **optional** prefix sections on each vector element to support Spin (prefixed by '_') followed by a 8 byte hex encoded identifier.
-5. With the Reset operator, the cV 3.0 format can support causality chains of indefnite depth. It is automatically invoked when other operations can exceed the maximum length. This arrangement means that the updated format does not rely on the '!' character in v2.1 to indicate further immutability.
+5. With the Reset operator, the cV 3.0 format can support causality chains of indefinite depth. It is automatically invoked when other operations can exceed the maximum length. This arrangement means that the updated format does not rely on the '!' character in v2.1 to indicate further immutability.
 
-## Interop with cV 2.1
+## Interoperability with cV 2.1
 
 The typical use case is when a system using cV v3.0 receives a call from a component that uses v2.1.
 
@@ -190,7 +190,7 @@ For the incoming v2.1 cV of the form X.V, where:
 
 The equivalent v3.0 cV has the form: A.**X**.**V**
 
-**Note**: While it is possible to convert a cV 3.0 to cV 2.1, it is **not** recommeded for a system using cV 3.0 to propagate to a system with cV 2.1. This is primarily on account of the more compact hex encoding on the v3.0 format which can generate equivalent cV 2.1 (that uses decimal) values that exceed maximum length.
+**Note**: While it is possible to convert a cV 3.0 to cV 2.1, it is **not** recommended for a system using cV 3.0 to propagate to a system with cV 2.1. This is primarily on account of the more compact hex encoding on the v3.0 format which can generate equivalent cV 2.1 (that uses decimal) values that exceed maximum length.
 
 ### cV 2.1 to cV 3.0 conversion examples
 
@@ -213,28 +213,28 @@ To convert such a v2.1 cV to v3.0, invoke the Reset operator after adding the ve
 
 - Recorded mapping: .1.15.3226329855.4111101367.10.23.8.3226332926.1671828776.2345.12.3.243.544.3226336576.3422508575.23.1.34! <=> B6B3AB078D8000FA
 
-## Interop with W3C
+## Interoperability with W3C
 
 The primary [W3C](https://github.com/w3c/distributed-tracing) header that communicates the position of the incoming request in a trace is **traceparent**, which has the following format:
 
 **version-format** "-" **trace-id** "-" **parent-id** "-" **trace-flags**
 
-For the purposes of interop, we are primarily concerned with mapping **trace_id** and **parent-id** to their respective analogs in the cV format.
+For the purposes of interoperability, we are primarily concerned with mapping **trace_id** and **parent-id** to their respective analogs in the cV format.
 
 Semantically,
 
-- **trace_id** maps to the cV base. They have identical entropy (atleast in the current versions).
+- **trace_id** maps to the cV base. They have identical entropy (at least in the current versions).
 - **parent-id** maps to the incoming parent vector, i.e. the vector without its most recent extension.
 
 ### TraceParent to cV 3.0
 
 The typical use case is when a cV instrumented system receives an incoming call with traceparent header.
 
-Generating a cV from an incoming traceparent value, has the following contruction steps:
+Generating a cV from an incoming traceparent value, has the following construction steps:
 
 - Append with the cV 3.0 version 'A.'.
 - Encode the trace_id into base64 and append it.
-- Append the '-' character denoting the W3C interop.
+- Append the '-' character denoting the W3C interoperability.
 - Convert the parent_id to upper case, and append it.
 - Append a new vector counter initialized to zero, with the '.' delimiter.
 
@@ -252,16 +252,16 @@ The generated cV will have the following form: A.[**encode_base64(trace_id)**]#[
 
 The typical use case is when a cV instrumented system is making a call out to component that only understands the W3C headers.
 
-The cV encodes more information in the vector than that encoded in the parent_Id in traceparent. For this reason, when converting to cV 3.0, we generate a new span Id and associcate this with the span.
+The cV encodes more information in the vector than that encoded in the parent_id in traceparent. For this reason, when converting to cV 3.0, we generate a new span ID and associate this with the span.
 
-Generating a traceparent from an existing cV 3.0 value, has the following contruction steps:
+Generating a traceparent from an existing cV 3.0 value, has the following construction steps:
 
 - Start with a prefix for the appropriate version format. This is currently "00-".
 - Encode the cV base (without the version character) into lower case hexadecimal.
 - Append a "-" character.
-- Generate a new span Id (random generation, 8 byte, lower case hexadecimal encoded)
-  - Emit the association between the vector segement and the newly created span Id for trace reconstruction.
-- Append the span Id.
+- Generate a new span ID (random generation, 8 byte, lower case hexadecimal encoded)
+  - Emit the association between the vector segment and the newly created span ID for trace reconstruction.
+- Append the span ID.
 - Append a "-" character
 - Append suitable trace-flags as defined in the W3C specification. Default would be "00".
 
