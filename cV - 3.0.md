@@ -48,10 +48,10 @@ Represented by the following simply grammar ABNF specification
 
 1. A.PmvzQKgYek6Sdk/T5sWaqw.0 // Base: PmvzQKgYek6Sdk/T5sWaqw; Version: A
 2. A.PmvzQKgYek6Sdk/T5sWaqw.B
-3. A.e8iECJiOvUGPvOVtchxG9g1.F.A.23 // All elements in the vector are logical ticks that resulted from an Increment operation
+3. A.e8iECJiOvUGPvOVtchxG9g.F.A.23 // All elements in the vector are logical ticks that resulted from an Increment operation
 4. A.e8iECJiOvUGPvOVtchxG9g-304773F68A307E98.1.F.A.234 // 304773F68A307E98 is a Span ID from the incoming W3C TraceParent header
 5. A.e8iECJiOvUGPvOVtchxG9g.1.F.A.23_93816B91E430A7BB.1 // 93816B91E430A7BB was generated during a Spin operation
-6. A.e8iECJiOvUGPvOVtchxG9g1#B6A5FFD77977E2AE.0 // B6A5FFD77977E2AE was generated during a Reset operation
+6. A.e8iECJiOvUGPvOVtchxG9g#B6A5FFD77977E2AE.0 // B6A5FFD77977E2AE was generated during a Reset operation
 
 ## Operators
 
@@ -174,7 +174,7 @@ Summarizing the key differences from v2.1:
 3. Support for two **optional** vector prefix segments that use a reserved character followed by an 8 byte hex encoded identifier to support
 
    - Reset (prefixed by '#')
-   - W3C interop (prefixed by '-')
+   - W3C interoperability (prefixed by '-')
 
 4. Support for **optional** prefix sections on each vector element to support Spin (prefixed by '_') followed by a 8 byte hex encoded identifier.
 5. With the Reset operator, the cV 3.0 format can support causality chains of indefinite depth. It is automatically invoked when other operations can exceed the maximum length. This arrangement means that the updated format does not rely on the '!' character in v2.1 to indicate further immutability.
