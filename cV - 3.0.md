@@ -42,7 +42,7 @@ Represented by the following simply grammar ABNF specification
 
 **Note**: The encoded **_{Base}_** consists of 22 base64 characters and, if left unrestricted, technically allows for 132-bit values. In order to support interoperability with tracing standards that use UUIDs, the **_{Base}_** value is restricted to 128-bits assuring reliable conversion to/from the UUID format. This is the reason the last element of the **_{Base}_** is restricted to a subset of allowable base64 characters.
 
-**Note**: Base64 is case sensitive. Since the cV base is base64 encoded, 'a' is distinct from 'A' in the base. Counters and IDs are encoded in hexadecimal where there is no such distinction. However, this indifference does not allow us to apply a lexical sort. So by convention and for a more accessible sort, the hexadecimal encoding is restricted to only **upper case** characters, when used for ids or counters.
+**Note**: Base64 is case sensitive. Since the cV base is base64 encoded, 'a' is distinct from 'A' in the base. Counters and IDs are encoded in hexadecimal where there is no such distinction. However, this indifference does not allow us to apply a lexical sort. So by convention and for a more accessible sort, the hexadecimal encoding is restricted to only **upper case** characters, when used for IDs or counters.
 
 ### Examples
 
