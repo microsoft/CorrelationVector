@@ -32,13 +32,13 @@ Represented by the following simply grammar ABNF specification
 10. tick = 1*8(%x30-39 / %x41-46) ; hex encoded counter
 11. id = 16(%x30-39 / %x41-46) ; hex encoded id
 12. delim = %x2E ; '.'
-13. sharp = %x23 ; '#' (reset operation indicative)
-14. dash = %x2d ; '-' (parent span id indicative)
-15. under = %x5f ; '_' (spin operation indicative)
+13. sharp = %x23 ; '\#' (reset operation indicative)
+14. dash = %x2d ; '\-' (parent span id indicative)
+15. under = %x5f ; '\_' (spin operation indicative)
 
 **Maximum length**: 128 bytes (assuming a UTF-8 encoding)
 
-**Note**: The following characters are reserved for the specification { ‘.’, ‘-’, ‘_’, ‘#’, ‘!’ }
+**Note**\: The following characters are reserved for the specification \{ ‘.’, ‘\-’, ‘\_’, ‘\#’, ‘\!’ \}
 
 **Note**: The encoded **_{Base}_** consists of 22 base64 characters and, if left unrestricted, technically allows for 132-bit values. In order to support interoperability with tracing standards that use UUIDs, the **_{Base}_** value is restricted to 128-bits assuring reliable conversion to/from the UUID format. This is the reason the last element of the **_{Base}_** is restricted to a subset of allowable base64 characters.
 
@@ -64,13 +64,13 @@ To help define the vector operators are the following definitions and notations:
 - M is an 8-byte unsigned integer designed to offer a combination of sort and entropy and constructed as follows:
   - M is composed of two 4-byte sections referred to as AB where A is the most significant section that is derived from UTC time as follows:
     - If x is the UTC time in Ticks,
-      - Drop the least significant 16 bits of x to create a coarse tick that increments approximately every 6.5 milliseconds
-    - Select least significant 32 bits from the output of the previous step that yields a 32-bit coarse tick counter where each tick is approximately 6.5 milliseconds
+      - Drop the least significant N bits of x to create a tick that increments, where N is the amount of bits dropped based on the Spin Parameter **Spin Counter Interval**.
+    - Select the least significant N bits from the output of the previous step that yields a N-bit coarse tick counter where N is the amount of bits indicated in the Spin Parameters in **Spin Counter Periodicity**.
 
-    A therefore reflects a coarse tick counter that increments approximately every 6.5 milliseconds and overflows once in a little over 328 days.
-  - B is the least significant 4-byte section and is randomly generated. 32 bits of entropy yields a probability of collision of 1.15% for 10,000 trials.
+    Using a coarse spin interval, A therefore reflects a coarse tick counter that increments approximately every 6.5 milliseconds and overflows once in a little over 328 days.
+  - B is a randomly generated unsigned integer whose size is indicated in the Spin Parameter **Spin Entropy**. 32 bits of entropy yields a probability of collision of 1.15% for 10,000 trials. 
 
-The use case for M is described in the Spin operator section.
+The use case for M is described in the Spin operator section. It is also used when resetting the correlation vector.
 
 ### Seed
 
@@ -138,13 +138,13 @@ The output of a cV can be changed to output different values.
 If the computer increments UTC time based on ticks, where 10 million ticks is equal to 1 second, **Coarse** will increment the spin counter every 1.67 seconds \(2\^24\*10\^\-7 seconds\) and **Fine** will increment the spin counter every 6.5 milliseconds \(2\^16\*10\^\-7 seconds\).
 
 **Spin Counter Periodicity**: This indicates how many bits of the counter value described in the first part of **M** will be stored.
-- **None** stores no bits of the counter.
+- **None** stores no \(0\) bits of the counter.
 - **Short** stores 16 bits (2 bytes).
 - **Medium** stores 24 bits (3 bytes).
 - **Long** stores 32 bits (4 bytes).
 
 **Spin Entropy**: This indicates how many bits of entropy described in the second part of **M** will be stored.
-- **None** generates no bits of entropy.
+- **None** generates no \(0\) bits of entropy.
 - **One** generates 8 bits (1 byte) of entropy.
 - **Two** generates 16 bits (2 bytes) of entropy.
 - **Three** generates 24 bits (3 bytes) of entropy.
@@ -170,7 +170,7 @@ Note: When Reset is invoked in the context of the Spin operator, the operations 
 
 In all cases, the Reset Operation records S, i.e. the value associated with the previous value of the vector. This value needs to be recorded for reconstructing the trace and is associated with its replacement M. In other words, the association tuple (S, M) needs to be captured in the trace in conjunction with invoking the Reset operator.
 
-While Reset also uses **M**, there are no reset parameters; it always assumes a Long spin counter periodicity and a Long spin entropy. However, the spin counter interval is up to the implementation.
+While Reset also uses **M**, there are no reset parameters; it always assumes a Long spin counter periodicity and a Long spin entropy (64 bits or 8 bytes). However, the spin counter interval is up to the implementation.
 
 ### Reset Examples
 
