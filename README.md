@@ -4,12 +4,12 @@
 ## Background
 
 **Correlation Vector** (a.k.a. **cV**) is a format and protocol standard for tracing and correlation of events through a distributed system based on a light weight vector clock.
-The standard is widely used internally at Microsoft for first party applications and services and supported across multiple logging libraries and platforms (Services, Clients - Native, Managed, Js, iOS, Android etc). The standard powers a variety of different data processing needs ranging from distributed tracing & debugging to system and business intelligence, in various business organizations.
+The standard is widely used internally at Microsoft for first party applications and services and supported across multiple logging libraries and platforms (Services, Clients - Native, Managed, JS, iOS, Android etc). The standard powers a variety of different data processing needs ranging from distributed tracing & debugging to system and business intelligence, in various business organizations.
 
 ## Goals
 
-- Make the standard specification externally avaiable for implementation by non-Microsoft components or Open Source Microsoft components
-- Support wire interop scenarios b/w Microsoft-internal and external tracing systems
+- Make the standard specification externally available for implementation by non-Microsoft components or Open Source Microsoft components
+- Support wire interop scenarios between Microsoft-internal and external tracing systems
 - Describe the benefits of vector based tracing formats and to provide an exemplar vector based format for future standardization efforts with similar protocols
 
 ## Resources
@@ -24,8 +24,8 @@ The standard is widely used internally at Microsoft for first party applications
 
 ## Reference Implementations
 
-- [Cpp](https://github.com/Microsoft/CorrelationVector-Cpp)
-- [CSharp](https://github.com/Microsoft/CorrelationVector-CSharp)
+- [Cpp](https://github.com/Microsoft/CorrelationVector-Cpp) \(C\+\+\)
+- [CSharp](https://github.com/Microsoft/CorrelationVector-CSharp) \(C\#\)
 - [Go](https://github.com/Microsoft/CorrelationVector-Go)
 - [Java](https://github.com/Microsoft/CorrelationVector-Java)
 - [JavaScript](https://github.com/Microsoft/CorrelationVector-JavaScript)
