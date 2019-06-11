@@ -125,9 +125,32 @@ In such instances, without a uniquely incremented value on each incoming flow, t
 
 The Spin operator mitigates this, by inserting an element with entropy so that repeated invocations result in unique values. However purely using entropy erodes the utility of the vector when it is used to provide a sort during data processing. For this reason, the construction precedes this with an element derived from UTC time. This supports the sort property of the vector while reducing the chances of collision.
 
-**Definition**: **V** => **V**_**M**.0
+**Definition**: **V** => **V**\_**M**.0
 
-### Spin Examples
+#### Spin Parameters
+
+The output of a cV can be changed to output different values.
+
+**Spin Counter Interval**: There are two different options for this:
+- **Coarse** indicates that the 24 least significant bits of the UTC time counter are dropped.
+- **Fine** indicates that the 16 least significant bits of the UTC time counter are dropped.
+
+If the computer increments UTC time based on ticks, where 10 million ticks is equal to 1 second, **Coarse** will increment the spin counter every 1.67 seconds \(2\^24\*10\^\-7 seconds\) and **Fine** will increment the spin counter every 6.5 milliseconds \(2\^16\*10\^\-7 seconds\).
+
+**Spin Counter Periodicity**: This indicates how many bits of the counter value described in the first part of **M** will be stored.
+- **None** stores no bits of the counter.
+- **Short** stores 16 bits (2 bytes).
+- **Medium** stores 24 bits (3 bytes).
+- **Long** stores 32 bits (4 bytes).
+
+**Spin Entropy**: This indicates how many bits of entropy described in the second part of **M** will be stored.
+- **None** generates no bits of entropy.
+- **One** generates 8 bits (1 byte) of entropy.
+- **Two** generates 16 bits (2 bytes) of entropy.
+- **Three** generates 24 bits (3 bytes) of entropy.
+- **Four** generates 32 bits (4 bytes) of entropy.
+
+#### Spin Examples
 
 1. A.PmvzQKgYek6Sdk/T5sWaqw.9 => A.PmvzQKgYek6Sdk/T5sWaqw.9_B6A6A13E588CF82F.0
 2. A.PmvzQKgYek6Sdk/T5sWaqw.1.F.A.23 => A.PmvzQKgYek6Sdk/T5sWaqw.1.F.A.23_B6A6A13E588CF82F.0
@@ -146,6 +169,8 @@ The Reset operator is meant to be invoked implicitly, whenever an operation can 
 Note: When Reset is invoked in the context of the Spin operator, the operations are identical to those of Extend. The reason for this is that the Reset operator already introduces a sort-entropy element (by introducing M) that makes the vector value unique to the span, thereby making the addition of another such element moot.
 
 In all cases, the Reset Operation records S, i.e. the value associated with the previous value of the vector. This value needs to be recorded for reconstructing the trace and is associated with its replacement M. In other words, the association tuple (S, M) needs to be captured in the trace in conjunction with invoking the Reset operator.
+
+While Reset also uses **M**, there are no reset parameters; it always assumes a Long spin counter periodicity and a Long spin entropy. However, the spin counter interval is up to the implementation.
 
 ### Reset Examples
 
