@@ -110,15 +110,38 @@ The Spin operator mitigates this, by inserting an element with entropy so that r
 
 **Definition**: V => V.A.B.0
 
-- A is a 4-byte unsigned integer derived from UTC time as follows:
+- A is an unsigned integer derived from UTC time as follows:
   - If x is the UTC time in Ticks, 
-    - Drop the least significant 16 bits of x to create a coarse tick that increments approximately every 6.5 milliseconds
-    - Select least significant 32 bits from the output of the previous step that yields a 32-bit coarse tick counter where each tick is approximately 6.5 milliseconds
+    - Drop the least significant N bits of x to create a tick that increments, where N is the amount of bits dropped based on the Spin Parameter **Spin Counter Interval**.
+    - Select the least significant N bits from the output of the previous step that yields a N-bit coarse tick counter where N is the amount of bits indicated in the Spin Parameters in **Spin Counter Periodicity**.
 
-    A therefore reflects a coarse tick counter that increments approximately every 6.5 milliseconds and overflows once in a little over 328 days.
-- B is randomly generated 4-byte unsigned integer. 32 bits of entropy yields a probability of collision of 1.15% for 10,000 trials. 
+    Using a coarse spin interval, A therefore reflects a coarse tick counter that increments approximately every 6.5 milliseconds and overflows once in a little over 328 days.
+- B is a randomly generated unsigned integer whose size is indicated in the Spin Parameter **Spin Entropy**. 32 bits of entropy yields a probability of collision of 1.15% for 10,000 trials. 
 
-### Spin Examples
+#### Spin Parameters
+
+The output of a cV can be changed to output different values.
+
+**Spin Counter Interval**: There are two different options for this:
+- **Coarse** indicates that the 24 least significant bits of the UTC time counter are dropped.
+- **Fine** indicates that the 16 least significant bits of the UTC time counter are dropped.
+
+If the computer increments UTC time based on ticks, where 10 million ticks is equal to 1 second, **Coarse** will increment the spin counter every 1.67 seconds \(2\^24\*10\^\-7 seconds\) and **Fine** will increment the spin counter every 6.5 milliseconds \(2\^16\*10\^\-7 seconds\).
+
+**Spin Counter Periodicity**: This indicates how many bits of the counter value described in the defined value A will be stored.
+- **None** stores no \(0\) bits of the counter.
+- **Short** stores 16 bits (2 bytes).
+- **Medium** stores 24 bits (3 bytes).
+- **Long** stores 32 bits (4 bytes).
+
+**Spin Entropy**: This indicates how many bits of entropy described in the defined value B should be generated.
+- **None** generates no \(0\) bits of entropy.
+- **One** generates 8 bits (1 byte) of entropy.
+- **Two** generates 16 bits (2 bytes) of entropy.
+- **Three** generates 24 bits (3 bytes) of entropy.
+- **Four** generates 32 bits (4 bytes) of entropy.
+
+#### Spin Examples
 
 1. PmvzQKgYek6Sdk/T5sWaqw.1 => PmvzQKgYek6Sdk/T5sWaqw.1.3226329855.4111101367.0
 2. e8iECJiOvUGPvOVtchxG9g.1.23 => e8iECJiOvUGPvOVtchxG9g.1.23.3226332926.1671828776.0
