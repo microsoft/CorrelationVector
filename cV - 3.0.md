@@ -238,7 +238,7 @@ Generating a cV from an incoming traceparent value, has the following constructi
 - Convert the parent_id to upper case, and append it.
 - Append a new vector counter initialized to zero, with the '.' delimiter.
 
-The generated cV will have the following form: A.[**encode_base64(trace_id)**]#[**uppercase(parent_id)**].0
+The generated cV will have the following form: A.\[**encode_base64(trace_id)**\]\-\[**uppercase(parent_id)**\].0
 
 ### W3C to cV 3.0 conversion example
 
