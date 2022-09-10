@@ -168,7 +168,7 @@ The Reset operator is meant to be invoked implicitly, whenever an operation can 
 
 Note: When Reset is invoked in the context of the Spin operator, the operations are identical to those of Extend. The reason for this is that the Reset operator already introduces a sort-entropy element (by introducing M) that makes the vector value unique to the span, thereby making the addition of another such element moot.
 
-In all cases, the Reset Operation records S, i.e. the value associated with the previous value of the vector. This value needs to be recorded for reconstructing the trace and is associated with its replacement M. In other words, the association tuple (S, M) needs to be captured in the trace in conjunction with invoking the Reset operator.
+In all cases, the Reset Operation records S, i.e. the value associated with the previous value of the vector. This value needs to be recorded for reconstructing the trace and is associated with its replacement M. In other words, the association tuple (S, M) needs to be captured in the trace in conjunction with invoking the Reset operator. S does not include the extension; the extension is preserved for the resultant reset vector.
 
 While Reset also uses **M**, there are no reset parameters; it always assumes a Long spin counter periodicity and a Long spin entropy (64 bits or 8 bytes). However, the spin counter interval is up to the implementation.
 
@@ -177,16 +177,16 @@ While Reset also uses **M**, there are no reset parameters; it always assumes a 
 Let:
 
 - **X** = PmvzQKgYek6Sdk/T5sWaqw
-- **S** = .1.FA.A1.23_B6A5E62FC38E9974.1_B6A6A13E588CF82F.2A.AB.213_B6A92D24A00C0F9B.47.8B.12.34.A123.2B.23.41.AB
+- **S** = .1.FA.A1.23_B6A5E62FC38E9974.1_B6A6A13E588CF82F.2A.AB.213_B6A92D24A00C0F9B.47.8B.12.34.A123.2B.23.41A
 
-XS is 126 bytes (assuming ASCII encoding and 1 byte per character).
+**XS** is 123 bytes (assuming ASCII encoding and 1 byte per character). A.**XS** is 125 bytes, and A.**XS**.F is 127 bytes, where F is the hexadecimal value 0xF. Incrementing, extending, or spinning will reset the correlation vector.
 
 - Increment: A.**XS**.F => A.**X**#B6B3AB078D8000FA.10
   - Recorded mapping: **S** <=> B6B3AB078D8000FA
-- Extend: A.**XS** => A.**X**#B6B3AB078D8000FA.0
-  - Recorded mapping: **S** <=> B6B3AB078D8000FA
-- Spin: A.**XS** => A.**X**#B6B3AB078D8000FA.0
-  - Recorded mapping: **S** <=> B6B3AB078D8000FA
+- Extend: A.**XS**.F => A.**X**#B6B3AB078D8000FA.0
+  - Recorded mapping: **S**.F <=> B6B3AB078D8000FA
+- Spin: A.**XS**.F => A.**X**#B6B3AB078D8000FA.0
+  - Recorded mapping: **S**\_B6B3AB07F13A1230 <=> B6B3AB078D8000FA
 
 Note that the properties of M as defined above allows for sorting events across the trace reset boundary, even in the absence of intermediate spans that contain the previous value of the vector. This is based on the time component that is the most significant 4 bytes in M.
 
@@ -263,7 +263,7 @@ Generating a cV from an incoming traceparent value, has the following constructi
 - Convert the parent_id to upper case, and append it.
 - Append a new vector counter initialized to zero, with the '.' delimiter.
 
-The generated cV will have the following form: A.[**encode_base64(trace_id)**]#[**uppercase(parent_id)**].0
+The generated cV will have the following form: A.\[**encode_base64(trace_id)**\]\-\[**uppercase(parent_id)**\].0
 
 ### W3C to cV 3.0 conversion example
 
